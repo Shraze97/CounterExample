@@ -11,6 +11,7 @@ open Function Set Filter Topology
 universe u v w
 
 
+/--Making the Finite Particular Point Topology-/
 def FiniteParticularPointTopology_mk{α : Type u}[Fintype α ](p : α ) : TopologicalSpace α  where
   IsOpen X:= p ∈ X ∨ X = ∅
   isOpen_univ :=
@@ -53,10 +54,12 @@ def FiniteParticularPointTopology_mk{α : Type u}[Fintype α ](p : α ) : Topolo
 section FiniteParticularPointTopology
 variable (α : Type u)[f : Fintype α][t :TopologicalSpace α](p : α)(topology_eq : t = FiniteParticularPointTopology_mk p)
 
+/--An open set in FPT either contains p or is empty-/
 theorem FPT_open_iff {X : Set α} : IsOpen X ↔ p ∈ X ∨ X = ∅ := by
   rw [topology_eq]
   exact Iff.rfl
 
+/--FPT is T0-/
 instance FPT_T₀ : T0Space α := by
     rw[t0Space_iff_inseparable]
     intro x y hxy
@@ -102,13 +105,16 @@ instance FPT_T₀ : T0Space α := by
       simp only [mem_singleton_iff, mem_insert_iff] at hy
       exact (Or.resolve_left hy h.2).symm
 
+/--Here we first introduce the fact that the no. of elements in the space is greater than 2-/
+
 variable (hn : Fintype.card α > 2 )
 
+/--FPT contains more that 2 elements-/
 instance Nontrivial_α : Nontrivial α := by
   apply Fintype.one_lt_card_iff_nontrivial.mp
   linarith
 
-
+/--FPT is not T₁-/
 theorem FPT_not_T₁ : ¬ T1Space α := by
   rw[t1Space_iff_exists_open]
   push_neg
