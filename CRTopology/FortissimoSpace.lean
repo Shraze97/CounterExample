@@ -10,7 +10,7 @@ open Function Set Filter Topology
 
 universe u v w
 
-
+/--Making the Fortissimo Space-/
 def FortissiomoSpace_mk{α : Type u}(p : α) : TopologicalSpace α where
   IsOpen X := p ∈ Xᶜ  ∨ Set.Countable Xᶜ
   isOpen_univ := by
@@ -64,10 +64,12 @@ section FortissiomoSpace
 
 variable{α : Type u}(p : α)(hcount : ¬ Countable α)[t : TopologicalSpace α](topology_eq : t = FortissiomoSpace_mk p)
 
+/--Fortissimo Space is open if either p is contained in the complement of X or complement of X is countable-/
 theorem FS_open_iff : IsOpen X = (p ∈ Xᶜ  ∨ Set.Countable Xᶜ) := by
   rw[topology_eq]
   rfl
 
+/--Fortissimo Space is a T5 Space-/
 instance FS_T₅ : T5Space α := by
 
   sorry
