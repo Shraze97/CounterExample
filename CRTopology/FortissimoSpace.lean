@@ -69,6 +69,55 @@ theorem FS_open_iff : IsOpen X = (p ∈ Xᶜ  ∨ Set.Countable Xᶜ) := by
   rw[topology_eq]
   rfl
 
+/--Fortissimo Space is a T1 Space-/
+instance FS_T₁ : T1Space α := by
+  rw[t1Space_iff_exists_open]
+  intros x y hxy
+  by_cases hp :y = p ∨ x = p
+  · cases hp with
+    | inl hpy =>
+        set U : Set α := {p}ᶜ  with hU
+        use U
+        constructor
+        rw[FS_open_iff p topology_eq]
+        left
+        rw[hU]
+        simp
+        constructor
+        rw[hU]
+        simp only [mem_compl_iff, mem_singleton_iff]
+        rw[hpy] at hxy
+        exact hxy
+        rw[hpy,hU]
+        simp only [mem_compl_iff, mem_singleton_iff, not_true_eq_false, not_false_eq_true]
+    | inr hpx =>
+        set U : Set α := {y}ᶜ  with hU
+        use U
+        constructor
+        rw[FS_open_iff p topology_eq]
+        right
+        rw[hU]
+        simp only [compl_compl, countable_singleton]
+        rw[hU]
+        simp
+        exact hxy
+  push_neg at hp
+  set U : Set α := {y,p}ᶜ with hU
+  use U
+  constructor
+  rw[FS_open_iff p topology_eq]
+  left
+  rw[hU]
+  simp only [mem_singleton_iff, compl_compl, mem_insert_iff, or_true]
+  constructor
+  rw[hU]
+  simp only [mem_singleton_iff, mem_compl_iff, mem_insert_iff]
+  push_neg
+  exact ⟨hxy,hp.2⟩
+  rw[hU]
+  simp only [mem_singleton_iff, mem_compl_iff, mem_insert_iff, true_or, not_true_eq_false,
+    not_false_eq_true]
+
 /--Fortissimo Space is a T5 Space-/
 instance FS_T₅ : T5Space α := by
 
