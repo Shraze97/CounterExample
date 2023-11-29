@@ -9,23 +9,28 @@ noncomputable section
 open Function Set Filter Topology TopologicalSpace
 
 universe u v w
-
+/--Structure Describing the deleted Integer Space-/
 structure DeletedIntegerSpace where
   x : ℝ
   hn : x > 0
   hx : ∀ y : ℕ , x ≠ y
 
+/--Notation for ℝ+-/
 notation "ℝ+" => DeletedIntegerSpace
 
+/--sets in ℝ+ which when imbedded inside the straight line act as open sets in ℝ-/
 def modified_Ioo(b : ℕ) : Set ℝ+ :=
   {a : ℝ+ | a.1 ∈ Set.Ioo (b : ℝ) (b + 1 : ℝ )  }
 
+/--Partition of sets in ℝ+ on which we develop the partition topology-/
 def DIT_partition : Set (Set ℝ+) :=
   {S | ∃ (a : ℕ) , S = modified_Ioo a}
 
+/--Creating an indexing function which gives us elements of the partition defined above-/
 def DIT_indexed_partition : ℕ → Set ℝ+ :=
   λ a => modified_Ioo a
 
+/--Auxiliary lemma which shows the range of the indexing function is DIT_partition -/
 lemma DIT_partition_equiv_indexed_partition : DIT_partition = Set.range DIT_indexed_partition := by
   ext S
   constructor
@@ -45,7 +50,7 @@ lemma DIT_partition_equiv_indexed_partition : DIT_partition = Set.range DIT_inde
     rw[ha]
 
 
-
+/--Lemma showing the fact that if 0.5 is added to a natural number than it is not equal to another natural number. This will play significant role in producing an element of DIT-/
 lemma pointfive_plus_x(x : ℕ) : ∀ y : ℕ , ((x: ℝ ) + 0.5 ) ≠ (y : ℝ) := by
   norm_num
   field_simp
@@ -60,6 +65,7 @@ lemma pointfive_plus_x(x : ℕ) : ∀ y : ℕ , ((x: ℝ ) + 0.5 ) ≠ (y : ℝ)
   rw[this]
   simp only [Int.mul_emod_left]
 
+/--Lemma showing the fact that if 0.5 is added to a natural number than it is not equal to another natural number. This will play significant role in producing an element of DIT-/
 lemma twentyfive_plus_x(x : ℕ) : ∀ y : ℕ , ((x : ℝ ) + 0.25) ≠ (y : ℝ) := by
   norm_num
   field_simp
@@ -73,7 +79,7 @@ lemma twentyfive_plus_x(x : ℕ) : ∀ y : ℕ , ((x : ℝ ) + 0.25) ≠ (y : �
   rw[this]
   simp only [Int.mul_emod_left]
 
-
+/--Lemma used in producing an element of DIT-/
 lemma x_plus_one_gt_zero(x : ℕ) : (x : ℝ) + 0.5 >  0 := by
   norm_num
   field_simp
@@ -85,16 +91,19 @@ lemma x_plus_one_gt_zero(x : ℕ) : (x : ℝ) + 0.5 >  0 := by
   linarith
   norm_num
 
+
 lemma floor_cast_aux_2(r : ℝ+): Int.toNat ⌊r.x⌋ = Int.floor (r.x) := by
   rw[Int.toNat_of_nonneg]
   rw[Int.floor_nonneg]
   apply le_of_lt
   apply r.hn
---I want to construct this map f' : Set ℝ+ → ℕ
+
+
 lemma floor_cast_aux(r: ℝ+): @Nat.cast ℝ Real.natCast  (Int.toNat (Int.floor (r.x)))  =  Int.floor (r.x):= by
   norm_cast
   rw[floor_cast_aux_2 r]
 
+/--Theorem Proving the fact that DIT partition is a partition-/
 theorem DIT_partition_is_partition : Setoid.IsPartition DIT_partition  := by
   rw[Setoid.IsPartition]
   constructor
@@ -158,9 +167,10 @@ theorem DIT_partition_is_partition : Setoid.IsPartition DIT_partition  := by
     rw[hra]
     assumption
 
-
+/--Making a Deleted Integer Topology as a Topological Space in ℝ+ -/
 def DeletedIntegerTopology_mk : TopologicalSpace ℝ+ :=
   TopologicalSpace.generateFrom (DIT_partition)
+
 
 lemma aux_insertion(α : Type u)(w : Set α)(y : Set α)(a : Set (Set α ))(hmain : {y,w} ⊆ a): @Subset (Set (Set α)) instHasSubsetSet {w} (a) := by
     trans
@@ -174,6 +184,7 @@ lemma aux_insertion_adv(α : Type u)(w : Set α)(y : Set α)(z : Set α )(a : Se
   exact hmain
   simp only [mem_singleton_iff, mem_insert_iff, singleton_subset_iff, true_or]
 
+/--Permutation of certain elements in Set (Set α)-/
 lemma permutation_elements(α : Type u)(w : Set α)(y : Set α)(z : Set α): {w,y,z} = @insert (Set α) (Set (Set α)) instInsertSet y {w, z} ∧ {w,y,z} = @insert (Set α) (Set (Set α)) instInsertSet z {w, y} ∧ {w,y,z} = @insert (Set α) (Set (Set α)) instInsertSet z {y, w}:= by
   constructor
   rw[Set.insert_comm]
@@ -190,7 +201,7 @@ lemma permutation_elements(α : Type u)(w : Set α)(y : Set α)(z : Set α): {w,
   rw[Set.union_assoc]
   rw[Set.union_comm {w} {y}]
 
-
+/--In a partition, distinct elements are disjoint-/
 lemma IsPartition_intersection (α : Type u)(x : Set α)(y : Set α )(c : Set (Set α))(hc : Setoid.IsPartition c )(hx : x ∈ c)(hy : y ∈ c)(hxy : x ≠ y) : x ∩ y = ∅  := by
   rw[← Set.disjoint_iff_inter_eq_empty]
   have hpdxy : Set.PairwiseDisjoint c id := Setoid.IsPartition.pairwiseDisjoint hc
@@ -201,7 +212,7 @@ lemma IsPartition_intersection (α : Type u)(x : Set α)(y : Set α )(c : Set (S
   assumption
 
 
-
+/--Lemma stating the fact that in a partition (with 2 elements) the finite intersection of elements is contained in the partition itselfunion the whole space and the empty set -/
 lemma Card_case_2 (α : Type u)[DECα : DecidableEq (Set α)](c : Set (Set α))(hc : Setoid.IsPartition c )(S : Set α)(x : Set (Set α) )(hxfin : @Set.Finite (Set α) x)(hrr : @Finset.card (Set α) (Finite.toFinset hxfin) = 2)(hxc : x ⊆  c)(hx : ⋂₀ x = S) : S ∈ c ∪ {univ} ∪ {∅}:= by
   rw[Finset.card_eq_two] at hrr
   match hrr with
@@ -225,7 +236,7 @@ lemma Card_case_2 (α : Type u)[DECα : DecidableEq (Set α)](c : Set (Set α))(
   apply IsPartition_intersection α w y c hc hxc.1 hxc.2 hyw
 
 
-
+/--Lemma stating the fact that in a partition(general case) the finite intersection of elements is contained in the partition itselfunion the whole space and the empty set-/ 
 lemma finite_intersection_of_partition(α : Type u) (c : Set (Set α))(hc : Setoid.IsPartition c )(hcnon : c.Nontrivial) : c ∪{univ}∪ {∅}  = ((fun (f: Set (Set α)) => ⋂₀ f) '' {f | Set.Finite f ∧ f ⊆ (c ) }) := by
   ext S
   constructor
@@ -332,21 +343,12 @@ lemma finite_intersection_of_partition(α : Type u) (c : Set (Set α))(hc : Seto
   simp only [subset_empty_iff] at hsinter_sub
   simp only [hsinter_sub, true_or]
 
-def f : @Elem (Set ℝ+) (range DIT_indexed_partition) → ℕ := λ x => by
-  sorry
-
-def f_representative(a : ℕ) : @Elem ℝ+ (modified_Ioo a) → ℕ := a
-
-
-lemma DIT_countable : Set.Countable DIT_partition := by
-  rw[Set.countable_iff_exists_injective]
-
-  sorry
 
 section DeletedIntegerTopology
 
 variable [t : TopologicalSpace ℝ+](topology_eq : t = DeletedIntegerTopology_mk)
 
+/--Theorem stating the fact that DIT is non_trivial-/
 theorem DIT_nontrivial : DIT_partition.Nontrivial := by
   rw[Set.Nontrivial]
   set a1 : Set ℝ+ := modified_Ioo 1 with ha1
@@ -374,12 +376,13 @@ theorem DIT_nontrivial : DIT_partition.Nontrivial := by
     add_le_iff_nonpos_right, mem_Ioo, add_lt_add_iff_left] at h
   norm_num at h
 
-
+/--The Topological Basis of DIT is the DIT_partition in union with universal set and the empty set-/
 theorem DIT.TopologicalBasis : TopologicalSpace.IsTopologicalBasis (DIT_partition ∪{univ}∪ {∅}) := by
   rw[DeletedIntegerTopology_mk] at topology_eq
   rw[finite_intersection_of_partition ℝ+ (DIT_partition) (DIT_partition_is_partition) (DIT_nontrivial) ]
   apply TopologicalSpace.isTopologicalBasis_of_subbasis topology_eq
 
+/--Auxilary Theorem to prove the fact that DIT is not T0-/
 lemma DIT_not_T0_aux(x1 : ℝ+)(x2 : ℝ+)(S : Set ℝ+)(a : Set ℝ+)(ha : a = modified_Ioo 2)(hx1a : x1 ∈ a)(hx2a : x2 ∈ a)(hS : IsOpen S) : x1 ∈ S →  x2 ∈ S := by
   intro hSx1
   rw[TopologicalSpace.IsTopologicalBasis.isOpen_iff (DIT.TopologicalBasis topology_eq)] at hS
@@ -411,6 +414,7 @@ lemma DIT_not_T0_aux(x1 : ℝ+)(x2 : ℝ+)(S : Set ℝ+)(a : Set ℝ+)(ha : a = 
   rw[← hat]
   assumption
 
+/--Deleted Integer Topology is not T0-/
 instance DIT_not_T0 : ¬ T0Space ℝ+ := by
   rw[t0Space_iff_inseparable]
   push_neg
